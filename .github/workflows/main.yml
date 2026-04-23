@@ -1,0 +1,69 @@
+name: Build and Deploy CAP App to Cloud Foundry
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Install CAP build tools
+        run: |
+          npm install -g @sap/cds-dk mbt
+
+      - name: Build CAP project for production
+        run: npx cds build --production
+
+      - name: Build MTA archive
+        run: mbt build
+
+      # ✅ FIXED: CF install + persist PATH
+      - name: Install Cloud Foundry CLI
+        run: |
+          curl -L https://github.com/cloudfoundry/cli/releases/download/v8.8.0/cf8-cli_8.8.0_linux_x86-64.tgz -o cf.tgz
+    
+          tar -xzf cf.tgz
+
+          # ✅ use actual binary
+          chmod +x cf8
+          sudo mv cf8 /usr/local/bin/cf
+
+          # persist PATH
+          echo "/usr/local/bin" >> $GITHUB_PATH
+
+          which cf
+          cf version
+
+      # ✅ Now this will work
+      - name: Install MultiApps plugin
+        run: |
+          cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org
+          cf install-plugin multiapps -f
+          cf plugins
+
+      # ✅ Slight improvement for BTP trial
+      - name: Login to Cloud Foundry
+        run: |
+          cf api "${{ secrets.CF_API }}"
+          cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
+          cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}"
+
+      - name: Deploy MTA to Cloud Foundry
+        run: |
+          cf deploy mta_archives/employee-crud-app_1.0.0.mtar -f
