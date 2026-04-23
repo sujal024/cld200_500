@@ -50,9 +50,10 @@ jobs:
 
       - name: Login to Cloud Foundry
         run: |
-          /usr/local/bin/cf api "${{ secrets.CF_API }}"
-          /usr/local/bin/cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
-          /usr/local/bin/cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}"
+          /usr/local/bin/cf api "${{ secrets.CF_API }}" || exit 1
+          /usr/local/bin/cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}" || exit 1
+          /usr/local/bin/cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}" || exit 1
+        continue-on-error: false
 
       - name: Deploy MTA to Cloud Foundry
         run: |
