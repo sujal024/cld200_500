@@ -37,8 +37,9 @@ jobs:
         run: |
           wget -q -O cf8.tgz "https://packages.cloudfoundry.org/stable?release=linux64-binary&source=github"
           tar -xzf cf8.tgz
+          chmod +x ./cf
+          ./cf version
           sudo mv cf /usr/local/bin/cf
-          cf version
 
       - name: Install MultiApps plugin
         run: |
@@ -48,7 +49,7 @@ jobs:
 
       - name: Login to Cloud Foundry
         run: |
-          cf api "${{ secrets.CF_API}}"
+          cf api "${{ secrets.CF_API }}"
           cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
           cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}"
 
