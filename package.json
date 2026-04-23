@@ -9,8 +9,7 @@
     "@sap/cds": "^9",
     "@sap/xssec": "^4.13.0"
   },
-
-  
+    
   "devDependencies": {
     "@cap-js/sqlite": "^2",
     "@sap/cds-dk": "^9",
