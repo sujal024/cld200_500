@@ -24,8 +24,7 @@ jobs:
         run: npm install
 
       - name: Install CAP build tools
-        run: |
-          npm install -g @sap/cds-dk mbt
+        run: npm install -g @sap/cds-dk mbt
 
       - name: Build CAP project for production
         run: npx cds build --production
@@ -35,8 +34,8 @@ jobs:
 
       - name: Install Cloud Foundry CLI
         run: |
-          wget -q -O cf8.tgz "https://packages.cloudfoundry.org/stable?release=linux64-binary&source=github"
-          tar -xzf cf8.tgz
+          wget -q -O cf.tgz "https://packages.cloudfoundry.org/stable?release=linux64-binary&source=github"
+          tar -xzf cf.tgz
           sudo mv cf /usr/local/bin/cf
           cf version
 
@@ -48,10 +47,10 @@ jobs:
 
       - name: Login to Cloud Foundry
         run: |
-          cf api "${{ secrets.https://api.cf.ap21.hana.ondemand.com}}"
-          cf auth "${{ secrets.amrutkarsujal24@gmail.com }}" "${{ secrets.Sujal@12345 }}"
-          cf target -o "${{ secrets.d81307d4trial }}" -s "${{ secrets.dev }}"
+          cf api ${{ secrets.CF_API }}
+          cf auth ${{ secrets.CF_USERNAME }} ${{ secrets.CF_PASSWORD }}
+          cf target -o ${{ secrets.CF_ORG }} -s ${{ secrets.CF_SPACE }}
 
       - name: Deploy MTA to Cloud Foundry
         run: |
-          cf deploy mta_archives/employee-crud-app_1.0.0.mtar -f
+          cf deploy mta_archives/*.mtar -f
