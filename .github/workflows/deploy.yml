@@ -39,20 +39,21 @@ jobs:
           tar -xzf cf8.tgz
           chmod +x ./cf
           ./cf version
-          sudo mv cf /usr/local/bin/cf
+          sudo mv ./cf /usr/local/bin/cf
+          which cf
 
       - name: Install MultiApps plugin
         run: |
-          cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org || true
-          cf install-plugin multiapps -f
-          cf plugins
+          /usr/local/bin/cf add-plugin-repo CF-Community https://plugins.cloudfoundry.org || true
+          /usr/local/bin/cf install-plugin multiapps -f
+          /usr/local/bin/cf plugins
 
       - name: Login to Cloud Foundry
         run: |
-          cf api "${{ secrets.CF_API }}"
-          cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
-          cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}"
+          /usr/local/bin/cf api "${{ secrets.CF_API }}"
+          /usr/local/bin/cf auth "${{ secrets.CF_USERNAME }}" "${{ secrets.CF_PASSWORD }}"
+          /usr/local/bin/cf target -o "${{ secrets.CF_ORG }}" -s "${{ secrets.CF_SPACE }}"
 
       - name: Deploy MTA to Cloud Foundry
         run: |
-          cf deploy mta_archives/employee-crud-app_1.0.0.mtar -f
+          /usr/local/bin/cf deploy mta_archives/employee-crud-app_1.0.0.mtar -f
